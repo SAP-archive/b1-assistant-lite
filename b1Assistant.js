@@ -168,11 +168,11 @@ function getSalesInfo(intent, session, callback) {
     sessionAttributes = handleSessionAttributes(sessionAttributes, 'SalesYear', SalesYear);
 
     if (SalesQuarter == null) {
-        speechOutput = "For What quarter?";
+        speechOutput = "For What quarter and year?";
         repromptText = "Tell me the quarter and the year.";
     } else if (SalesYear == null) {
         speechOutput = "What year do you need?";
-        repromptText = "You can do it, tell me a year.";
+        repromptText = "Lile this year, last year...";
     } else {
 
         var oDataEndpoint = "/SalesAnalysisByDocumentQuery"
@@ -194,11 +194,14 @@ function getSalesInfo(intent, session, callback) {
                 } else {
                     speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
                     SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
-                    response[0].BusinessPartnerCurrency+".";
+                    response[0].BusinessPartnerCurrency+". ";
 
                     for (var i = 1; i < response.length; i++) {
-                        speechOutput+="And also "+response[i].NetSalesAmountLC_SUM + " " +
-                        response[i].BusinessPartnerCurrency+".";
+                        speechOutput+="Also "+response[i].NetSalesAmountLC_SUM + " " +
+                        response[i].BusinessPartnerCurrency+". ";
+                        if (i !=response.length-1){
+                            speechOutput+="And "
+                        }
                     }
                    
                 }
