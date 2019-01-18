@@ -4,7 +4,7 @@
   "description": "Sample integration between B1 and Amazon Echo (Alexa)",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/Ralphive/b1AlexaSample#readme",
   "dependencies": {
+    "ask-sdk-core": "^2.3.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "request": "^2.88.0"
