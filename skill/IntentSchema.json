@@ -1,0 +1,140 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "be one hack",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "SayHello",
+                    "slots": [
+                        {
+                            "name": "FirstName",
+                            "type": "AMAZON.US_FIRST_NAME"
+                        }
+                    ],
+                    "samples": [
+                        "Say hi to {FirstName}",
+                        "Salute our friend {FirstName}"
+                    ]
+                },
+                {
+                    "name": "MakePurchase",
+                    "slots": [
+                        {
+                            "name": "ItemName",
+                            "type": "SAP_ITEMS"
+                        },
+                        {
+                            "name": "Quantity",
+                            "type": "AMAZON.NUMBER"
+                        }
+                    ],
+                    "samples": [
+                        "buy me {Quantity} unities of {ItemName}",
+                        "buy me {ItemName}",
+                        "{ItemName}",
+                        "I need supplies",
+                        "{Quantity} unities",
+                        "{Quantity} packs",
+                        "{Quantity} pieces",
+                        "I need {Quantity} unities",
+                        "I need {Quantity} packs",
+                        "I need {Quantity} pieces"
+                    ]
+                },
+                {
+                    "name": "SalesInfo",
+                    "slots": [
+                        {
+                            "name": "SalesQuarter",
+                            "type": "SAP_QUARTERS"
+                        },
+                        {
+                            "name": "SalesYear",
+                            "type": "AMAZON.DATE"
+                        }
+                    ],
+                    "samples": [
+                        "what are the sales numbers",
+                        "what are the numbers for the {SalesQuarter} quarter of {SalesYear}",
+                        "what are the numbers for the {SalesQuarter} of {SalesYear}",
+                        "show me the numbers for the {SalesQuarter} quarter of {SalesYear}",
+                        "show me the numbers for the {SalesQuarter} of {SalesYear}",
+                        "{SalesQuarter}",
+                        "{SalesYear}",
+                        "{SalesQuarter} quarter of {SalesYear}",
+                        "{SalesQuarter} of {SalesYear}",
+                        "show me sales numbers",
+                        "give me sales info"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                }
+            ],
+            "types": [
+                {
+                    "name": "SAP_QUARTERS",
+                    "values": [
+                        {
+                            "id": "Q4",
+                            "name": {
+                                "value": "fourth"
+                            }
+                        },
+                        {
+                            "id": "Q3",
+                            "name": {
+                                "value": "third"
+                            }
+                        },
+                        {
+                            "id": "Q2",
+                            "name": {
+                                "value": "second"
+                            }
+                        },
+                        {
+                            "id": "Q1",
+                            "name": {
+                                "value": "first"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "SAP_ITEMS",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "Compressor"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Stove"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "Boiler"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}

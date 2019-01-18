@@ -168,24 +168,23 @@ function getSalesInfo(intent, session, callback) {
     sessionAttributes = handleSessionAttributes(sessionAttributes, 'SalesYear', SalesYear);
 
     if (SalesQuarter == null) {
-        speechOutput = "Got it! What quarter?";
+        speechOutput = "For What quarter?";
         repromptText = "Tell me the quarter and the year.";
     } else if (SalesYear == null) {
         speechOutput = "What year do you need?";
         repromptText = "You can do it, tell me a year.";
     } else {
 
-        var b1Quarter = formatQuarter(SalesQuarter);
         var oDataEndpoint = "/SalesAnalysisByDocumentQuery"
-        var OdataFilter =   "$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency),"+
+        var odataFilter =   "$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency),"+
                             "aggregate($count as ItemCode_COUNT, NetSalesAmountLC with sum as NetSalesAmountLC_SUM))"+
                             "&$filter=PostingYear eq "+quotes(SalesYear)+
-                            " and PostingQuarter eq "+quotes(formatQuarter(SalesQuarter));
+                            " and PostingQuarter eq "+quotes(SalesQuarter);
         
         //Replace Blank spaces
-        OdataFilter = oDataFilter.replace(/ /g, "%20");
+        odataFilter = odataFilter.replace(/ /g, "%20");
 
-        getCall(true, oDataEndpoint, oDataFilter, function (response) {
+        getCall(true, oDataEndpoint, odataFilter, function (response) {
                 console.log("response is " + response);
                 response = response.value
 
@@ -193,7 +192,7 @@ function getSalesInfo(intent, session, callback) {
                     speechOutput = "I am sorry, but there are no" +
                         " sales in the " + SalesQuarter + " quarter of " + SalesYear;
                 } else {
-                    speechOutput = "The sales for the " + stringQuarter(b1Quarter) + " quarter of " +
+                    speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
                     SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
                     response[0].BusinessPartnerCurrency+".";
 
@@ -344,7 +343,7 @@ function getCall(isReport, endPoint, filter, callback) {
     var http = require('request');
 
     var options = {
-        uri: g_host + g_port + isReport?g_reportAPI:g_dataAPI + endPoint + filter,
+        uri: g_host +":"+ g_port + (isReport?g_reportAPI:g_dataAPI)+ endPoint + filter,
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -385,7 +384,13 @@ function extractValue(attr, intent, session) {
 
     if (intent.slots) {
         if (attr in intent.slots && 'value' in intent.slots[attr]) {
-            return intent.slots[attr].value;
+            var slot = intent.slots[attr]
+            try{
+                //Try to returns slot ID otherwise returns slot value
+                return slot.resolutions.resolutionsPerAuthority[0].values[0].value.id
+            }catch (e){
+                return intent.slots[attr].value;
+            }
         }
     };
     return null;
@@ -416,25 +421,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function formatQuarter(input) {
-
-    if (input == 'first' || input == '1st' || input == 'Q1') {
-        return 'Q1';
-    }
-
-    if (input == 'second' || input == '2nd' || input == 'Q2') {
-        return 'Q2';
-    }
-
-    if (input == 'third' || input == '3rd' || input == 'Q3') {
-        return 'Q3';
-    }
-
-    if (input == 'fourth' || input == '4th' || input == 'Q4') {
-        return 'Q4';
-    }
-
-}
 
 function stringQuarter(input) {
 
@@ -510,11 +496,7 @@ function stringQuarter(input) {
 function getWelcomeMessage() {
     var message = [];
 
-    message[0] = "Welcome to BYD Assistant. How can I help?"
-    message[1] = "Hi, I am your BYD assistant. How can I help you today?"
-    message[2] = "This is BYD assistant speaking. What is my command?"
-    message[3] = "Hello! Here is BYD assistant. Let me know what do you wish."
-
+    message[0] = "Welcome to the SMB Summit Hackathon. How can I help?"
     return message[getRandomInt(0, message.length - 1)];
 }
 
