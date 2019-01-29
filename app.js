@@ -1,9 +1,9 @@
 /**
  * This is a nodejs express web server wrapper as a standalone version of b1Assistant(b1Assistant.js) 
- * 
  */
 
-//begin of wrapper for https endpoint of b1Assistant.js
+
+ //begin of wrapper for https endpoint of b1Assistant.js
 //You could deploy this alexa nodejs skill locally or on cloud foundry
 const express = require('express');
 const bodyParser = require('body-parser');
