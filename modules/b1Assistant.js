@@ -5,6 +5,7 @@ var g_port = process.env.SMB_PORT;
 var g_reportAPI = process.env.SMB_REPORTAPI;
 var g_dataAPI = process.env.SMB_DATAAPI;
 
+
 exports.handler = function (event, context) {
     try {
         //console.log("event.session.application.applicationId=" + event.session.application.applicationId);
@@ -19,18 +20,20 @@ exports.handler = function (event, context) {
          */
 
         if (event.session.new) {
-            onSessionStarted({requestId: event.request.requestId}, event.session);
+            onSessionStarted({
+                requestId: event.request.requestId
+            }, event.session);
         }
 
         if (event.request.type === "LaunchRequest") {
-            onLaunch(event.request,event.session, function callback(sessionAttributes, speechletResponse) {
-                    context.succeed(buildResponse(sessionAttributes, speechletResponse));
-                });
+            onLaunch(event.request, event.session, function callback(sessionAttributes, speechletResponse) {
+                context.succeed(buildResponse(sessionAttributes, speechletResponse));
+            });
         } else if (event.request.type === "IntentRequest") {
             onIntent(event.request, event.session, function callback(sessionAttributes, speechletResponse) {
-                    context.succeed(buildResponse(sessionAttributes, speechletResponse));
-                });
-        } else if (event.request.type === "SessionEndedRequest") { 
+                context.succeed(buildResponse(sessionAttributes, speechletResponse));
+            });
+        } else if (event.request.type === "SessionEndedRequest") {
             onSessionEnded(event.request, event.session);
             context.succeed();
         }
@@ -52,7 +55,7 @@ function onSessionStarted(sessionStartedRequest, session) {
  */
 function onLaunch(launchRequest, session, callback) {
     console.log("onLaunch requestId=" + launchRequest.requestId + ", sessionId=" + session.sessionId);
-     // Dispatch to skill's launch.
+    // Dispatch to skill's launch.
     getWelcomeResponse(callback);
 }
 
@@ -87,9 +90,9 @@ function onIntent(intentRequest, session, callback) {
             getSalesInfo(intent, session, callback);
             break;
 
-        // case "MakePurchase":
-        //     postPurchase(intent, session, callback);
-        //     break;
+        case "MakePurchase":
+            postPurchase(intent, session, callback);
+            break;
 
         case "AMAZON.HelpIntent":
             getWelcomeResponse(callback);
@@ -105,7 +108,7 @@ function onIntent(intentRequest, session, callback) {
  * Is not called when the skill returns shouldEndSession=true.
  */
 function onSessionEnded(sessionEndedRequest, session) {
-    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId +", sessionId=" + session.sessionId);
+    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId + ", sessionId=" + session.sessionId);
 }
 
 // --------------- Functions that control the skill's behavior -----------------------
@@ -176,46 +179,45 @@ function getSalesInfo(intent, session, callback) {
     } else {
 
         var oDataEndpoint = "/SalesAnalysisByDocumentQuery"
-        var odataFilter =   "$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency),"+
-                            "aggregate($count as ItemCode_COUNT, NetSalesAmountLC with sum as NetSalesAmountLC_SUM))"+
-                            "&$filter=PostingYear eq "+quotes(SalesYear)+
-                            " and PostingQuarter eq "+quotes(SalesQuarter);
-        
+        var odataFilter = "$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency)," +
+            "aggregate($count as ItemCode_COUNT, NetSalesAmountLC with sum as NetSalesAmountLC_SUM))" +
+            "&$filter=PostingYear eq " + quotes(SalesYear) +
+            " and PostingQuarter eq " + quotes(SalesQuarter);
+
         //Replace Blank spaces
         odataFilter = odataFilter.replace(/ /g, "%20");
 
         getCall(true, oDataEndpoint, odataFilter, function (response) {
-                console.log("response is " + response);
-                response = response.value
+            console.log("response is " + response);
+            response = response.value
 
-                if (response.length == 0) {
-                    speechOutput = "I am sorry, but there are no" +
-                        " sales in the " + SalesQuarter + " quarter of " + SalesYear;
-                } else {
-                    speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
+            if (response.length == 0) {
+                speechOutput = "I am sorry, but there are no" +
+                    " sales in the " + SalesQuarter + " quarter of " + SalesYear;
+            } else {
+                speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
                     SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
-                    response[0].BusinessPartnerCurrency+". ";
+                    response[0].BusinessPartnerCurrency + ". ";
 
-                    for (var i = 1; i < response.length; i++) {
-                        speechOutput+="Also "+response[i].NetSalesAmountLC_SUM + " " +
-                        response[i].BusinessPartnerCurrency+". ";
-                        if (i !=response.length-1){
-                            speechOutput+="And "
-                        }
+                for (var i = 1; i < response.length; i++) {
+                    speechOutput += "Also " + response[i].NetSalesAmountLC_SUM + " " +
+                        response[i].BusinessPartnerCurrency + ". ";
+                    if (i != response.length - 1) {
+                        speechOutput += "And "
                     }
-                   
                 }
-                shouldEndSession = true;
 
-                // call back with result
-                callback(sessionAttributes,
-                    buildSpeechletResponse(
-                        intent.name, speechOutput,
-                        repromptText, shouldEndSession
-                    )
-                );
             }
-        );
+            shouldEndSession = true;
+
+            // call back with result
+            callback(sessionAttributes,
+                buildSpeechletResponse(
+                    intent.name, speechOutput,
+                    repromptText, shouldEndSession
+                )
+            );
+        });
         return;
     }
 
@@ -232,121 +234,131 @@ function getSalesInfo(intent, session, callback) {
 }
 
 
-// function postPurchase(intent, session, callback) {
+function postPurchase(intent, session, callback) {
 
-//     //Default
-//     var repromptText = null;
-//     var sessionAttributes = {};
-//     var shouldEndSession = false;
-//     var speechOutput = "";
+    //Default
+    var repromptText = null;
+    var sessionAttributes = {};
+    var shouldEndSession = false;
+    var speechOutput = "";
 
-//     var ItemName = extractValue('ItemName', intent, session)
-//     var Quantity = extractValue('Quantity', intent, session)
+    //Define Variables from Intent or from Session Attributes
+    console.log("INTENT RECEIVED");
+    console.log(JSON.stringify(intent));
+    console.log("SESSION RECEIVED")
+    console.log(JSON.stringify(session));
 
-//     sessionAttributes = handleSessionAttributes(sessionAttributes, 'ItemName', ItemName);
-//     sessionAttributes = handleSessionAttributes(sessionAttributes, 'Quantity', Quantity);
-//     sessionAttributes = handleSessionAttributes(sessionAttributes, 'PreviousIntent', intent.name);
+
+    var ItemName = extractValue('ItemName', intent, session)
+    var Quantity = extractValue('Quantity', intent, session)
+    var ItemRecom = extractValue('ItemRecom', intent, session)
+
+    var ItemRecomName = null;
+    var params = null;
 
 
-//     if (ItemName == null) {
-//         speechOutput = "Should I get you a compressor, a gas boiler or maybe a stove?.";
-//         repromptText = "You can say. I need a gas boiler. Or Buy me a stove";
-//     } else if (Quantity == null) {
-//         speechOutput = "Ok, how many do you need?";
-//         repromptText = "Tell me the quantity you need.";
-//     } else {
+    console.log("ItemName Extraido " + ItemName);
+    console.log("Quantity Extraido " + Quantity);
 
-//         /* ByD Requires a CSRF Token in every POST Request.
-//         This token is provided by a GET with Authentication */
-//         getCall("/", "", function (body, response) { //Callback Function
 
-//             console.log("response is " + response);
-//             if (response.statusCode != 200) {
-//                 speechOutput = "I am sorry, but there was an error processing this request";
-//             } else {
+    sessionAttributes = handleSessionAttributes(sessionAttributes, 'ItemName', ItemName);
+    sessionAttributes = handleSessionAttributes(sessionAttributes, 'Quantity', Quantity);
 
-//                 var http = require('request');
 
-//                 var body = {
-//                     "ExternalReference": "From Alexa",
-//                     "DataOriginTypeCode": "1",
-//                     "Name": "Order created via Alexa on " + getDateTime(true),
-//                     "SalesOrderBuyerParty": {
-//                         "PartyID": process.env.SMB_DEFAULT_BP
-//                     },
-//                     "SalesOrderItem": [
-//                         {
-//                             "ID": "10",
-//                             "SalesOrderItemProduct": {
-//                                 "ProductID": getByDProduct(ItemName)
-//                             },
-//                             "SalesOrderItemScheduleLine": [
-//                                 {
-//                                     "Quantity": Quantity
-//                                 }
-//                             ]
-//                         }
-//                     ]
-//                 }
 
-//                 var options = {
-//                     uri: g_host + g_port + g_reportAPI + "/SalesOrderCollection",
-//                     headers: {
-//                         "Accept": "application/json",
-//                         "Content-Type": "application/json",
-//                         "x-csrf-token": response.headers["x-csrf-token"], //Damm Token
-//                         "cookie": response.headers["set-cookie"]
-//                     },
-//                     body: JSON.stringify(body)
-//                 };
+    // Answer to: Do you need anything else?
+    if (intent.name == "AMAZON.YesIntent") {
+        ItemRecom = extractValue('ItemRecom', intent, session)
+    } else if (intent.name == "AMAZON.NoIntent") {
+        ItemRecom = null;
+    } else {
+        sessionAttributes = handleSessionAttributes(sessionAttributes, 'PreviousIntent', intent.name);
+    }
 
-//                 console.log('start request to ' + options.uri)
 
-//                 http.post(options, function (error, res, body) {
-//                     console.log("Response: " + res.statusCode);
-//                     if (!error && res.statusCode == 201) {
+    if (ItemName == null) {
+        speechOutput = "Should I get you printer ink, paper or maybe an USB drive.";
+        repromptText = "You can say. I need printer ink. Or Buy me an USB drive";
+    } else if (Quantity == null) {
+        speechOutput = "Ok, how many packs do you need?";
+        repromptText = "Tell me the quantity you need.";
+    } else if (ItemRecom == null && intent.name != "AMAZON.NoIntent") {
+        speechOutput = "Do you need anything else?";
+        repromptText = "Can I get you need anything else?";
 
-//                         body = JSON.parse(body);
-//                         body = body.d.results;
-//                         console.log("Order " + body.ID + " created!")
+    } else {
 
-//                         speechOutput = "Your order number " + body.ID + " was placed successfully! " +
-//                             "The total amount of your purchase is " + body.NetAmount +
-//                             " " + body.currencyCode;
+        params = '?action=SalesOrder' +
+            '&item=' + ItemName +
+            '&qty=' + Quantity;
 
-//                         shouldEndSession = true;
-//                     }
-//                     else {
-//                         speechOutput = "I am sorry, but there was an error creating your order.";
-//                     }
+        if (ItemRecom) {
+            params += '&item2=' + ItemRecom;
+        }
 
-//                     // call back with result
-//                     callback(sessionAttributes,
-//                         buildSpeechletResponse(
-//                             intent.name, speechOutput,
-//                             repromptText, shouldEndSession)
-//                     );
-//                 });
+        var bodySO = {
+            CardCode: getCustomer(),
+            DocDueDate: getTodayDate(),
+            Comments: "Posted by Alexa @ " + Date.now(),
+            DocumentLines: [{
+                ItemCode: extractItem(ItemName),
+                Quantity: Quantity
+            }]
+        }
 
-//             }
-//         })
-//         return
-//     }
-//     // Call back while there still questions to ask
-//     callback(sessionAttributes,
-//         buildSpeechletResponse(
-//             intent.name, speechOutput,
-//             repromptText, shouldEndSession
-//         )
-//     );
-// }
+        if (ItemRecom) {
+            bodySO.DocumentLines.push({
+                ItemCode: extractItem(ItemRecom),
+                Quantity: 1
+            })
+        }
 
+        console.dir(bodySO)
+
+
+        postCall(false, "/Orders", bodySO, function (response) {
+            console.log("response is " + response);
+
+            if (response.StatusCode != '201') {
+                speechOutput = "I am sorry, but there was an error creating your order.";
+
+            } else {
+                speechOutput = "Your order number " + response.DocNum + " was placed successfully! " +
+                    "The total amount of your purchase is " + response.DocTotal +
+                    " " + response.DocCurrency;
+            }
+
+            shouldEndSession = true;
+
+            // call back with result
+            callback(sessionAttributes,
+                buildSpeechletResponse(
+                    intent.name, speechOutput,
+                    repromptText, shouldEndSession
+                )
+            );
+        });
+        return;
+    }
+
+    console.log("Vao ser exportados " + JSON.stringify(sessionAttributes));
+
+    // Call back while there still questions to ask
+    callback(sessionAttributes,
+        buildSpeechletResponse(
+            intent.name, speechOutput,
+            repromptText, shouldEndSession
+        )
+    );
+}
+
+// --------------- External HTTP Requests of Session  -----------------------
 function getCall(isReport, endPoint, filter, callback) {
-    endPoint +=  "?$format=json&" 
+    endPoint += "?$format=json&"
     var http = require('request');
 
     var options = {
-        uri: g_host +":"+ g_port + (isReport?g_reportAPI:g_dataAPI)+ endPoint + filter,
+        uri: g_host + ":" + g_port + (isReport ? g_reportAPI : g_dataAPI) + endPoint + filter,
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -362,8 +374,7 @@ function getCall(isReport, endPoint, filter, callback) {
         if (!error && res.statusCode == 200 || res.statusCode == 201) {
             var parsed = JSON.parse(body);
             callback(parsed, res);
-        }
-        else {
+        } else {
             console.log("Error message: " + error);
             callback(false)
 
@@ -371,7 +382,38 @@ function getCall(isReport, endPoint, filter, callback) {
     });
 }
 
-// --------------- Handle of Session variables -----------------------
+function postCall(isReport, endPoint, body, callback) {
+    // endPoint += "?$format=json&"
+    // var http = require('request');
+
+    // var options = {
+    //     uri: g_host + ":" + g_port + (isReport ? g_reportAPI : g_dataAPI) + endPoint,
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //         "Authorization": "Basic " + process.env.SMB_AUTH
+    //     }
+    // };
+
+    // console.log('start request to ' + options.uri)
+
+    // http.post(options, function (error, res, body) {
+    //     console.log("Response: " + res.statusCode);
+    //     if (!error && res.statusCode == 200 || res.statusCode == 201) {
+    //         var parsed = JSON.parse(body);
+    //         callback(parsed, res);
+    //     } else {
+    //         console.log("Error message: " + error);
+    //         callback(false)
+
+    //     }
+    // });
+
+    
+
+
+}
+
+// --------------- Handle of Session Attributes -----------------------
 function extractValue(attr, intent, session) {
 
     console.log("Extracting " + attr);
@@ -388,10 +430,10 @@ function extractValue(attr, intent, session) {
     if (intent.slots) {
         if (attr in intent.slots && 'value' in intent.slots[attr]) {
             var slot = intent.slots[attr]
-            try{
+            try {
                 //Try to returns slot ID otherwise returns slot value
                 return slot.resolutions.resolutionsPerAuthority[0].values[0].value.id
-            }catch (e){
+            } catch (e) {
                 return intent.slots[attr].value;
             }
         }
@@ -445,54 +487,45 @@ function stringQuarter(input) {
 
 }
 
-// function formatItemGrp(itemGrp) {
-//     //Assures the item group name is formatted correctly
+function getCustomer() {
+    return 'C99998'; // Web Customer
+}
 
-//     itemGrp = itemGrp.toLowerCase();
+function extractItem(item) {
+    if (item === null) {
+        return null;
+    }
 
-//     if (itemGrp == 'pc') {
-//         return 'PC';
-//     }
-//     return toTitleCase(itemGrp)
-// }
+    var auxitem = item.toLowerCase();
 
-// function toTitleCase(str) {
-//     //Capitlize the first letter of each word on a given string
-//     return str.replace(/\w\S*/g, function (txt) {
-//         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-//     });
-// }
+    if (auxitem.indexOf('ink') >= 0) {
+        return 'I00008';
+    }
 
-// function getDateTime(withHour) {
-//     var currentdate = new Date();
-//     var datetime = currentdate.getFullYear() + "-"
-//         + (currentdate.getMonth() + 1) + "-"
-//         + currentdate.getDate();
+    if (auxitem.indexOf('paper') >= 0) {
+        return 'R00001';
+    }
 
-//     if (withHour) {
-//         datetime += " @ "
-//             + currentdate.getHours() + ":"
-//             + currentdate.getMinutes() + ":"
-//             + currentdate.getSeconds();
-//     }
+    if (auxitem.indexOf('drive') >= 0) {
+        return 'I00004';
+    }
+    return item;
+}
 
-//     return datetime;
-// }
+function getTodayDate() {
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth() + 1; //January is 0!
 
-// function getByDProduct(item) {
-//     item = formatItemGrp(item);
-
-//     if (item == "Boiler")
-//         return "P100401";
-
-//     if (item == "Stove")
-//         return "P110401";
-
-//     if (item == "Compressor")
-//         return "P120101";
-//     return "";
-
-// }
+    var yyyy = today.getFullYear();
+    if (dd < 10) {
+        dd = '0' + dd;
+    }
+    if (mm < 10) {
+        mm = '0' + mm;
+    }
+    return dd + '-' + mm + '-' + yyyy;
+}
 
 
 // -------------------- Speech Functions Formatting -----------------------
@@ -507,7 +540,7 @@ function getWelcomeMessage() {
 
 
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
-    console.log("ALEXA: "+output);
+    console.log("ALEXA: " + output);
     return {
         outputSpeech: {
             type: "PlainText",
