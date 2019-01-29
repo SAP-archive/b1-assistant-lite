@@ -2,7 +2,6 @@
  * the Amazon Echo device
  */
 
-
 // Module to perform Service Layer Calls
 const B1SL = require("./b1ServiceLayer")
 
@@ -317,65 +316,6 @@ function postPurchase(intent, session, callback) {
     );
 }
 
-// --------------- External HTTP Requests of Session  -----------------------
-function getCall(isReport, endPoint, filter, callback) {
-    endPoint += "?$format=json&"
-    var http = require('request');
-
-    var options = {
-        uri: g_host + ":" + g_port + (isReport ? g_reportAPI : g_dataAPI) + endPoint + filter,
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": "Basic " + process.env.SMB_AUTH,
-            "x-csrf-token": "fetch"
-        }
-    };
-
-    console.log('start request to ' + options.uri)
-    http.get(options, function (error, res, body) {
-        console.log("Response: " + res.statusCode);
-        if (!error && res.statusCode == 200 || res.statusCode == 201) {
-            var parsed = JSON.parse(body);
-            callback(parsed, res);
-        } else {
-            console.log("Error message: " + error);
-            callback(false)
-
-        }
-    });
-}
-
-function postCall(isReport, endPoint, body, callback) {
-    // endPoint += "?$format=json&"
-    // var http = require('request');
-
-    // var options = {
-    //     uri: g_host + ":" + g_port + (isReport ? g_reportAPI : g_dataAPI) + endPoint,
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         "Authorization": "Basic " + process.env.SMB_AUTH
-    //     }
-    // };
-
-    // console.log('start request to ' + options.uri)
-
-    // http.post(options, function (error, res, body) {
-    //     console.log("Response: " + res.statusCode);
-    //     if (!error && res.statusCode == 200 || res.statusCode == 201) {
-    //         var parsed = JSON.parse(body);
-    //         callback(parsed, res);
-    //     } else {
-    //         console.log("Error message: " + error);
-    //         callback(false)
-
-    //     }
-    // });
-
-
-
-
-}
 
 // --------------- Handle of Session Attributes -----------------------
 function extractValue(attr, intent, session) {
@@ -443,10 +383,6 @@ function stringQuarter(input) {
 
 }
 
-function getCustomer() {
-    return 'C99998'; // Web Customer
-}
-
 function extractItem(item) {
     if (item === null) {
         return null;
@@ -468,22 +404,6 @@ function extractItem(item) {
     return item;
 }
 
-function getTodayDate() {
-    var today = new Date();
-    var dd = today.getDate();
-    var mm = today.getMonth() + 1; //January is 0!
-
-    var yyyy = today.getFullYear();
-    if (dd < 10) {
-        dd = '0' + dd;
-    }
-    if (mm < 10) {
-        mm = '0' + mm;
-    }
-    return dd + '-' + mm + '-' + yyyy;
-}
-
-
 // -------------------- Speech Functions Formatting -----------------------
 function getWelcomeMessage() {
     var message = [];
@@ -493,8 +413,6 @@ function getWelcomeMessage() {
 }
 
 // --------------- Helpers that build all of the responses -----------------------
-
-
 function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
     console.log("ALEXA: " + output);
     return {
