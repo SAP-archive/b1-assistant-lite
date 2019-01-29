@@ -11,8 +11,8 @@ module.exports = {
     GetSalesInfo: function (year, quarter, callback) {
         return (GetSalesInfo(year, quarter, callback))
     },
-    PostSalesOrder: function (body, callback) {
-        return (PostSalesOrder(body, callback))
+    PostSalesOrder: function (item, qty, item2, callback){
+        return (PostSalesOrder(item, qty, item2, callback))
     }
 }
 
@@ -24,23 +24,21 @@ var SLTIMEOUT = null
 
 // ------------------ Main SL Methods -------------------------
 
-function ServiceLayerRequest(isReport, method, endpoint, callback) {
+function ServiceLayerRequest(isReport, method, endpoint, body, callback) {
 
-    var options = {
-        url: process.env.B1_HOST + ":" + process.env.B1_PORT +
-            (isReport ? process.env.B1_REPORTAPI : process.env.B1_DATAAPI) +
-            endpoint +
-            "&$format=json",
-
-        method: method
-    }
-
-    console.log("Preparing Service Layer Request: " + JSON.stringify(options.method) + " - " + JSON.stringify(options.url))
 
     getCookiesCache().then(function (cookies) {
-            options.headers = {
-                'Cookie': cookies
-            };
+            var options = {
+                    url: process.env.B1_HOST + ":" + process.env.B1_PORT 
+                        + (isReport ? process.env.B1_REPORTAPI : process.env.B1_DATAAPI) 
+                        + endpoint + "&$format=json",
+                    
+                    method: method,
+                    headers: {Cookie: cookies},
+                    body: body ? JSON.stringify(body) : null
+            }
+            console.log("Preparing Service Layer Request: " + JSON.stringify(options.method) + " - " + JSON.stringify(options.url))
+
 
             request(options, function (error, response, body) {
                 if (error) {
@@ -49,7 +47,7 @@ function ServiceLayerRequest(isReport, method, endpoint, callback) {
                     if (response.statusCode == 401) {
                         //Invalid Session
                         Connect().then(function () {
-                            ServiceLayerRequest(isReport, method, endpoint, callback)
+                            ServiceLayerRequest(isReport, method, endpoint, body, callback)
                         }).catch(function (error, response) {
                             callback(error, response)
                         })
@@ -62,7 +60,7 @@ function ServiceLayerRequest(isReport, method, endpoint, callback) {
         })
         .catch(function () {
             Connect().then(function () {
-                ServiceLayerRequest(isReport, method, endpoint, callback)
+                ServiceLayerRequest(isReport, method, endpoint, body, callback)
             }).catch(function (error, response) {
                 callback(error, response)
             })
@@ -73,8 +71,8 @@ function ServiceLayerRequest(isReport, method, endpoint, callback) {
 
 let Connect = function () {
     return new Promise(function (resolve, reject) {
-        
-        var uri = process.env.B1_HOST + ":" + process.env.B1_PORT + process.env.B1_DATAAPI +  "/Login"
+
+        var uri = process.env.B1_HOST + ":" + process.env.B1_PORT + process.env.B1_DATAAPI + "/Login"
 
         //B1 Login Credentials
         var data = {
@@ -110,8 +108,6 @@ let Connect = function () {
 
 }
 
-
-
 // ------------------ Endpoint Implementations -------------------------
 
 function GetSalesInfo(year, quarter, callback) {
@@ -119,7 +115,7 @@ function GetSalesInfo(year, quarter, callback) {
 
     // Set endpoint (Semantic Layer)
     var oDataEndpoint = "/SalesAnalysisByDocumentQuery"
-    
+
     // Set Odata query
     oDataEndpoint += "?$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency)," +
         "aggregate($count as ItemCode_COUNT, NetSalesAmountLC with sum as NetSalesAmountLC_SUM))" +
@@ -141,33 +137,36 @@ function GetSalesInfo(year, quarter, callback) {
     });
 }
 
-// function PostSalesOrder(body, callback) {
-//     var options = {}
+function PostSalesOrder(item, qty, item2, callback) {
 
-//     options.url = SLServer + "/Orders"
-//     options.method = "POST"
-//     options.body = {
-//         "CardCode" : process.env.B1_DEFAULT_BP,
-//         "DocDueDate" : moment().format('YYYY-MM-DD'),
-//         "Comments": "Order created via SMB Mkt Place @" + moment.now(),
-//         "DocumentLines":[]
-//     }
-//     options.body.DocumentLines = JSON.parse(b1Normalize(JSON.stringify(body.lines)))
 
-//     options.body = JSON.stringify(options.body);
+    var oDataEndpoint = "/Orders?"
+    var bodySO = {
+        CardCode: process.env.DEFAULT_BP || 'C99998',
+        DocDueDate: moment().format('YYYY-MM-DD'),
+        Comments: "Order created via Alexa Hack @" + moment.now(),
+        DocumentLines: [{
+            ItemCode: item,
+            Quantity: qty
+        }]
+    }
 
-//     ServiceLayerRequest(false, options, function (error, response, body) {
-//         if (!error && response.statusCode == 201) {
-//             console.log("Sales order created: "+ body.DocEntry)
-//             body = odata.formatResponse(JSON.parse(body));
-//             callback(null, body);
+    if (item2) {
+        bodySO.DocumentLines.push({
+            ItemCode: item2,
+            Quantity: 1
+        })
+    }
 
-//         } else {
-//             callback(error);
-//         }
-//     });
-// }
-
+    ServiceLayerRequest(false, "POST", oDataEndpoint, bodySO, function (error, response, body) {
+        if (!error && response.statusCode == 201) {
+            body = JSON.parse(body);
+            callback(null, body);
+        } else {
+            callback(error);
+        }
+    });
+}
 
 
 // --------------- Handle SL Session Cookies ----------------------
@@ -189,7 +188,6 @@ let getCookiesCache = function () {
                 reject();
             }
         }
-
     })
 }
 

@@ -1,3 +1,9 @@
+/**  This module implements the interaction of the B1 Assistant Skill with 
+ * the Amazon Echo device
+ */
+
+
+// Module to perform Service Layer Calls
 const B1SL = require("./b1ServiceLayer")
 
 exports.handler = function (event, context) {
@@ -10,7 +16,7 @@ exports.handler = function (event, context) {
         
         if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.c014e6d6-a7a4-44ee-8b2f-9b10c7969743") {
              context.fail("Invalid Application ID");
-        }p
+        }
          */
 
         if (event.session.new) {
@@ -173,14 +179,14 @@ function getSalesInfo(intent, session, callback) {
     } else {
 
         B1SL.GetSalesInfo(SalesYear, SalesQuarter, function (err, response) {
-            if (err){
+            if (err) {
                 console.error(error)
                 speechOutput = "There was a problem calling Service Layer. Please check logs"
-            } else{
+            } else {
                 console.log("Sales Info Retrieved. Building speech Outbut")
-                
+
                 response = response.value
-    
+
                 if (response.length == 0) {
                     speechOutput = "I am sorry, but there are no" +
                         " sales in the " + SalesQuarter + " quarter of " + SalesYear;
@@ -188,7 +194,7 @@ function getSalesInfo(intent, session, callback) {
                     speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
                         SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
                         response[0].BusinessPartnerCurrency + ". ";
-    
+
                     for (var i = 1; i < response.length; i++) {
                         speechOutput += "Also " + response[i].NetSalesAmountLC_SUM + " " +
                             response[i].BusinessPartnerCurrency + ". ";
@@ -196,15 +202,15 @@ function getSalesInfo(intent, session, callback) {
                             speechOutput += "And "
                         }
                     }
-    
-                }       
+
+                }
             }
 
             shouldEndSession = true;
 
             // callback with result
             callback(sessionAttributes,
-                buildSpeechletResponse(intent.name, speechOutput,repromptText, shouldEndSession)
+                buildSpeechletResponse(intent.name, speechOutput, repromptText, shouldEndSession)
             );
         });
         return;
@@ -277,56 +283,26 @@ function postPurchase(intent, session, callback) {
 
     } else {
 
-        params = '?action=SalesOrder' +
-            '&item=' + ItemName +
-            '&qty=' + Quantity;
-
-        if (ItemRecom) {
-            params += '&item2=' + ItemRecom;
-        }
-
-        var bodySO = {
-            CardCode: getCustomer(),
-            DocDueDate: getTodayDate(),
-            Comments: "Posted by Alexa @ " + Date.now(),
-            DocumentLines: [{
-                ItemCode: extractItem(ItemName),
-                Quantity: Quantity
-            }]
-        }
-
-        if (ItemRecom) {
-            bodySO.DocumentLines.push({
-                ItemCode: extractItem(ItemRecom),
-                Quantity: 1
-            })
-        }
-
-        console.dir(bodySO)
-
-
-        postCall(false, "/Orders", bodySO, function (response) {
-            console.log("response is " + response);
-
-            if (response.StatusCode != '201') {
-                speechOutput = "I am sorry, but there was an error creating your order.";
-
+        B1SL.PostSalesOrder(extractItem(ItemName), Quantity, extractItem(ItemRecom), function (err, response) {
+            if (err) {
+                console.error(error)
+                speechOutput = "There was a problem calling Service Layer. Please check logs"
             } else {
                 speechOutput = "Your order number " + response.DocNum + " was placed successfully! " +
                     "The total amount of your purchase is " + response.DocTotal +
                     " " + response.DocCurrency;
-            }
 
-            shouldEndSession = true;
+                shouldEndSession = true;
 
-            // call back with result
-            callback(sessionAttributes,
-                buildSpeechletResponse(
-                    intent.name, speechOutput,
-                    repromptText, shouldEndSession
-                )
-            );
-        });
+                // call back with result
+                callback(sessionAttributes,
+                    buildSpeechletResponse(
+                        intent.name, speechOutput,
+                        repromptText, shouldEndSession
+                    )
+                );
+            };
+        })
         return;
     }
 
@@ -357,7 +333,6 @@ function getCall(isReport, endPoint, filter, callback) {
     };
 
     console.log('start request to ' + options.uri)
-
     http.get(options, function (error, res, body) {
         console.log("Response: " + res.statusCode);
         if (!error && res.statusCode == 200 || res.statusCode == 201) {
@@ -397,7 +372,7 @@ function postCall(isReport, endPoint, body, callback) {
     //     }
     // });
 
-    
+
 
 
 }
