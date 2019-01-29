@@ -7,7 +7,7 @@
 //You could deploy this alexa nodejs skill locally or on cloud foundry
 const express = require('express');
 const bodyParser = require('body-parser');
-const b1Assistant = require('./b1Assistant.js');
+const b1Assistant = require('./modules/b1Assistant');
 
 const app = express();
 const PORT = process.env.PORT || 8089;
