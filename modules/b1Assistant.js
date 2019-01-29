@@ -1,10 +1,4 @@
-//Variables to set - process.env.SMB_AUTH
-
-var g_host = process.env.SMB_HOST;
-var g_port = process.env.SMB_PORT;
-var g_reportAPI = process.env.SMB_REPORTAPI;
-var g_dataAPI = process.env.SMB_DATAAPI;
-
+const B1SL = require("./b1ServiceLayer")
 
 exports.handler = function (event, context) {
     try {
@@ -178,44 +172,39 @@ function getSalesInfo(intent, session, callback) {
         repromptText = "Lile this year, last year...";
     } else {
 
-        var oDataEndpoint = "/SalesAnalysisByDocumentQuery"
-        var odataFilter = "$apply=groupby((PostingYear, PostingQuarter, BusinessPartnerCurrency)," +
-            "aggregate($count as ItemCode_COUNT, NetSalesAmountLC with sum as NetSalesAmountLC_SUM))" +
-            "&$filter=PostingYear eq " + quotes(SalesYear) +
-            " and PostingQuarter eq " + quotes(SalesQuarter);
-
-        //Replace Blank spaces
-        odataFilter = odataFilter.replace(/ /g, "%20");
-
-        getCall(true, oDataEndpoint, odataFilter, function (response) {
-            console.log("response is " + response);
-            response = response.value
-
-            if (response.length == 0) {
-                speechOutput = "I am sorry, but there are no" +
-                    " sales in the " + SalesQuarter + " quarter of " + SalesYear;
-            } else {
-                speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
-                    SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
-                    response[0].BusinessPartnerCurrency + ". ";
-
-                for (var i = 1; i < response.length; i++) {
-                    speechOutput += "Also " + response[i].NetSalesAmountLC_SUM + " " +
-                        response[i].BusinessPartnerCurrency + ". ";
-                    if (i != response.length - 1) {
-                        speechOutput += "And "
+        B1SL.GetSalesInfo(SalesYear, SalesQuarter, function (err, response) {
+            if (err){
+                console.error(error)
+                speechOutput = "There was a problem calling Service Layer. Please check logs"
+            } else{
+                console.log("Sales Info Retrieved. Building speech Outbut")
+                
+                response = response.value
+    
+                if (response.length == 0) {
+                    speechOutput = "I am sorry, but there are no" +
+                        " sales in the " + SalesQuarter + " quarter of " + SalesYear;
+                } else {
+                    speechOutput = "The sales for the " + stringQuarter(SalesQuarter) + " quarter of " +
+                        SalesYear + " are " + response[0].NetSalesAmountLC_SUM + " " +
+                        response[0].BusinessPartnerCurrency + ". ";
+    
+                    for (var i = 1; i < response.length; i++) {
+                        speechOutput += "Also " + response[i].NetSalesAmountLC_SUM + " " +
+                            response[i].BusinessPartnerCurrency + ". ";
+                        if (i != response.length - 1) {
+                            speechOutput += "And "
+                        }
                     }
-                }
-
+    
+                }       
             }
+
             shouldEndSession = true;
 
-            // call back with result
+            // callback with result
             callback(sessionAttributes,
-                buildSpeechletResponse(
-                    intent.name, speechOutput,
-                    repromptText, shouldEndSession
-                )
+                buildSpeechletResponse(intent.name, speechOutput,repromptText, shouldEndSession)
             );
         });
         return;
@@ -453,14 +442,6 @@ function handleSessionAttributes(sessionAttributes, attr, value) {
 }
 
 // --------------- Auxiliar Functions Formatting -----------------------
-
-function quotes(val) {
-    return "%27" + val + "%27";
-}
-
-function op(op) {
-    return "%20" + op + "%20";
-}
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

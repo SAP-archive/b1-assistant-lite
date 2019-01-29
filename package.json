@@ -28,6 +28,7 @@
     "ask-sdk-core": "^2.3.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "moments": "0.0.2",
     "request": "^2.88.0"
   }
 }
