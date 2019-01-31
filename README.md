@@ -34,6 +34,7 @@ At the end of the process, Cloud Platform should return a Route as shown below. 
 
 * You can test your skill from the development console (as shown above)
 * Or from your Amazon Device, as long as it is logged with the same account you used on Amazon Developer
+* There is also a [Postman Collection](test/Alexa.postman_collection.json) that you can use to test your backend
 
 ## License
 B1 Assistant prototype is released under the terms of the MIT license. See [LICENSE](LICENSE) for more information or see https://opensource.org/licenses/MIT.
