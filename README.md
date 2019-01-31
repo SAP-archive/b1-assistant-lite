@@ -31,6 +31,7 @@ At the end of the process, Cloud Platform should return a Route as shown below. 
 
 ## Test
 <img src="https://i.imgur.com/xkw6lXx.png" alt="drawing" width="600"/>
+
 * You can test your skill from the development console (as shown above)
 * Or from your Amazon Device, as long as it is logged with the same account you used on Amazon Developer
 
