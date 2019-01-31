@@ -127,7 +127,7 @@ function GetSalesInfo(year, quarter, callback) {
 
 
 
-    ServiceLayerRequest(true, "GET", oDataEndpoint, function (error, response, body) {
+    ServiceLayerRequest(true, "GET", oDataEndpoint, null, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             body = JSON.parse(body);
             callback(null, body);
