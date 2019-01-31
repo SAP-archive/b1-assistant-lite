@@ -4,7 +4,7 @@ applications:
   memory: 64m
   instances: 1
   buildpack: https://github.com/cloudfoundry/nodejs-buildpack.git
-   env:
+  env:
     "B1_HOST" : "<B1 Host>"
     "B1_PORT" : "50001"
     "B1_REPORTAPI" : "/b1s/v1/sml.svc"
