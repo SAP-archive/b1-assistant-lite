@@ -286,21 +286,21 @@ function postPurchase(intent, session, callback) {
             if (err) {
                 console.error(err)
                 speechOutput = "There was a problem calling Service Layer. "
-                speechOutput += err + ". <amazon:effect name='whispered'>Check the logs for more details.</amazon:effect>."
+                speechOutput += err + ". Check the logs for more details."
             } else {
                 speechOutput = "Your order number " + response.DocNum + " was placed successfully! " +
                     "The total amount of your purchase is " + response.DocTotal +
                     " " + response.DocCurrency;
             };
-            shouldEndSession = true;
+              shouldEndSession = true;
 
-            // call back with result
-            callback(sessionAttributes,
-                buildSpeechletResponse(
-                    intent.name, speechOutput,
-                    repromptText, shouldEndSession
-                )
-            );
+                // call back with result
+                callback(sessionAttributes,
+                    buildSpeechletResponse(
+                        intent.name, speechOutput,
+                        repromptText, shouldEndSession
+                    )
+                );
         })
         return;
     }
