@@ -39,6 +39,7 @@ function ServiceLayerRequest(isReport, method, endpoint, body, callback) {
             }
             console.log("Preparing Service Layer Request: " + JSON.stringify(options.method) + " - " + JSON.stringify(options.url))
 
+            console.log("REQUEST BODY: "+ JSON.stringify(options.body))
 
             request(options, function (error, response, body) {
                 if (error) {
