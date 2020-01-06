@@ -425,7 +425,7 @@ function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
             title: title,
             text: output,
             image: {
-                smallImageUrl: "https://i.imgur.com/ZJFFyRa.png"
+                smallImageUrl: "https://i.imgur.com/FVTjmsN.png"
             }
         },
         reprompt: {
