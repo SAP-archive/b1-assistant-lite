@@ -1,3 +1,5 @@
+[![License: Apache2](https://img.shields.io/badge/License-Apache2-green.svg)](https://opensource.org/licenses/Apache-2.0)
+
 # B1 Assistant Lite
 A small Alexa Skill integration with SAP Business One for the SMB Summit Hackathon
 [![SAP](https://i.imgur.com/80Ohjn6.png)](http://cloudplatform.sap.com/)
