@@ -1,3 +1,4 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP-Samples/b1-assistant-lite)](https://api.reuse.software/info/github.com/SAP-Samples/b1-assistant-lite)
 [![License: Apache2](https://img.shields.io/badge/License-Apache2-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # B1 Assistant Lite
