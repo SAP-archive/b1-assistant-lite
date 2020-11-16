@@ -1,11 +1,11 @@
-# B1 Alexa Sample
+# B1 Assistant Lite
 A small Alexa Skill integration with SAP Business One for the SMB Summit Hackathon
 [![SAP](https://i.imgur.com/80Ohjn6.png)](http://cloudplatform.sap.com/)
 
-## More info:
-Detailed how to of a similar app - http://bit.ly/2dGJv9d
+## Description
+A sample [Alexa Skill](https://www.amazon.co.uk/b?ie=UTF8&node=10068517031) to demonstrate the integration between Amazon Echo x SAP Business One
 
-## Prerequisites
+## Requirements
 * [Amazon developer account](https://developer.amazon.com/)
 * [SAP Cloud Platform Trial Account With Cloud Foundry enviroment](https://developers.sap.com/tutorials/hcp-create-trial-account.html)
 
@@ -36,5 +36,9 @@ At the end of the process, Cloud Platform should return a Route as shown below. 
 * Or from your Amazon Device, as long as it is logged with the same account you used on Amazon Developer
 * There is also a [Postman Collection](test/Alexa.postman_collection.json) that you can use to test your backend. You can use it against your SAP Cloud Platform app Route OR with a local environment (on your machine) and long as you set the environment variables. Full list of variables available in the [MANIFEST](manifest.yml) file.
 
+## Support and Contributions  
+This repository is provided "as-is". With no Warranty or support. Feel free to open issues.
+
 ## License
-B1 Assistant prototype is released under the terms of the MIT license. See [LICENSE](LICENSE) for more information or see https://opensource.org/licenses/MIT.
+Copyright (c) 2020 SAP SE or an SAP affiliate company. All rights reserved. This project is licensed under the Apache Software License, version 2.0 except as noted otherwise in the [LICENSE](LICENSES/Apache-2.0.txt) file.
+
