@@ -5,7 +5,7 @@
 [![SAP](https://i.imgur.com/80Ohjn6.png)](http://cloudplatform.sap.com/)
 
 ## Description
-A sample [Alexa Skill](https://www.amazon.co.uk/b?ie=UTF8&node=10068517031) to demonstrate the integration between Amazon Echo x SAP Business One.
+A sample [Alexa Skill](https://www.amazon.co.uk/b?ie=UTF8&node=10068517031) to demonstrate the integration between Amazon Echo x SAP Business One. [Full explanation and deployment demonstration on Youtube](https://www.youtube.com/watch?time_continue=925&v=gscFihnxxJk&feature=emb_title)
 
 ## Requirements
 * [Install the Cloud Foundry CLI](https://developers.sap.com/tutorials/cp-cf-download-cli.html)
