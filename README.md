@@ -1,5 +1,7 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP-Samples/b1-assistant-lite)](https://api.reuse.software/info/github.com/SAP-Samples/b1-assistant-lite)
 [![License: Apache2](https://img.shields.io/badge/License-Apache2-green.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Not Maintained](https://img.shields.io/badge/Maintenance%20Level-Not%20Maintained-yellow.svg)](https://gist.github.com/cheerfulstoic/d107229326a01ff0f333a1d3476e068d)
+
 
 # B1 Assistant Lite
 [![SAP](https://i.imgur.com/80Ohjn6.png)](http://cloudplatform.sap.com/)
